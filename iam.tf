@@ -52,6 +52,15 @@ resource "aws_iam_role_policy_attachment" "eks_nodes_AmazonEC2ContainerRegistryR
   role       = aws_iam_role.eks_nodes.name
 }
 
+resource "aws_iam_role_policy_attachment" "eks_nodes_AmazonSSMManagedInstanceCore" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+  role       = aws_iam_role.eks_nodes.name
+}
+
+resource "aws_iam_role_policy_attachment" "eks_nodes_AmazonEC2RoleforSSM" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2RoleforSSM"
+  role       = aws_iam_role.eks_nodes.name
+}
 
 # ## EKS Cluster with Add-On VPC CNI
 # resource "aws_iam_role" "eks_cni_role" {

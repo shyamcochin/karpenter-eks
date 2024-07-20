@@ -43,10 +43,10 @@ resource "aws_subnet" "private" {
   tags = merge(
     local.default_tags,
     {
-      Name                                           = "${var.project}-${var.env}-${var.app}-private-subnet-${count.index + 1}"
-      "kubernetes.io/role/internal-elb"              = "1"
-      "karpenter.sh/discovery/${local.cluster_name}" = local.cluster_name
-      "kubernetes.io/cluster/${local.cluster_name}"  = "shared"
+      Name                                          = "${var.project}-${var.env}-${var.app}-private-subnet-${count.index + 1}"
+      "kubernetes.io/role/internal-elb"             = "1"
+      "karpenter.sh/discovery"                      = local.cluster_name
+      "kubernetes.io/cluster/${local.cluster_name}" = "shared"
     }
   )
 }

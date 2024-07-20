@@ -30,7 +30,7 @@ resource "aws_eks_node_group" "main" {
   #   capacity_type   = "SPOT"
 
   scaling_config {
-    desired_size = 1
+    desired_size = 2
     max_size     = 3
     min_size     = 1
   }
@@ -46,12 +46,15 @@ resource "aws_eks_node_group" "main" {
     aws_iam_role_policy_attachment.eks_nodes_AmazonEKSWorkerNodePolicy,
     aws_iam_role_policy_attachment.eks_nodes_AmazonEKS_CNI_Policy,
     aws_iam_role_policy_attachment.eks_nodes_AmazonEC2ContainerRegistryReadOnly,
+    aws_iam_role_policy_attachment.eks_nodes_AmazonEC2RoleforSSM,
+    aws_iam_role_policy_attachment.eks_nodes_AmazonSSMManagedInstanceCore
   ]
 
   tags = merge(
     local.default_tags,
     {
       Name = "${var.project}-${var.env}-${var.app}-nodegroup"
+      "karpenter.sh/discovery" = local.cluster_name
     }
   )
 }
