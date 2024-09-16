@@ -14,9 +14,9 @@ output "private_subnet_ids" {
   value       = aws_subnet.private[*].id
 }
 
-output "isolated_subnet_ids" {
-  description = "List of IDs of isolated subnets"
-  value       = aws_subnet.isolated[*].id
+output "db_subnet_ids" {
+  description = "List of IDs of db subnets"
+  value       = aws_subnet.db[*].id
 }
 
 output "nat_gateway_id" {
@@ -50,7 +50,22 @@ output "cluster_certificate_authority_data" {
   value       = aws_eks_cluster.main.certificate_authority[0].data
 }
 
-# Output the AWS account ID and IAM user details
+output "clusternode_iam_role_arn" {
+  description = "IAM role name of the EKS cluster Node group"
+  value       = aws_iam_role.eks_nodes.arn
+}
+
+output "cluster_token" {
+  value = data.aws_eks_cluster_auth.cluster.token
+  sensitive = true
+}
+
+output "cluster_oidc_issuer" {
+  description = "EKS cluster OIDC ARN"
+  value = aws_eks_cluster.main.identity[0].oidc[0].issuer
+}
+
+# AWS account ID and IAM user details
 output "aws_account_id" {
   description = "The AWS account ID"
   value       = data.aws_caller_identity.current.account_id
@@ -64,4 +79,25 @@ output "aws_user_arn" {
 output "aws_user_id" {
   description = "The ID of the IAM user"
   value       = data.aws_caller_identity.current.user_id
+}
+
+## Karpenter IAM Role:
+output "karpenter_controller_role_arn" {
+  value       = aws_iam_role.karpenter_controller.arn
+  description = "ARN of the Karpenter Controller IAM role"
+}
+
+output "karpenter_node_role_arn" {
+  value       = aws_iam_role.karpenter_node_role.arn
+  description = "ARN of the Karpenter Node IAM role"
+}
+output "karpenter_node_role_name" {
+  value       = aws_iam_role.karpenter_node_role.name
+  description = "ARN of the Karpenter Node IAM role"
+}
+
+
+output "karpenter_interruption_queue_name" {
+  value = aws_sqs_queue.karpenter_interruption_queue.name
+  description = "SQS ARN"
 }

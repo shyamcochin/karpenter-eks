@@ -1,9 +1,8 @@
-
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: inflate
+  namespace: workshop
 spec:
   replicas: 0
   selector:
@@ -21,4 +20,3 @@ spec:
           resources:
             requests:
               cpu: 1
----
