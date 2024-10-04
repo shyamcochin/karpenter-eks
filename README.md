@@ -27,19 +27,54 @@ aws configure
 aws sts get-caller-identity
 
 
-Create Karpenter EKS environment:
----------------------------------
-terraform init
-terraform plan
-terraform apply
-
-
-Connect to EKS cluster:
+Connect to EKS cluster: (Demo-dev-app-eks)
 -----------------------
 aws eks describe-cluster --name <cluster-name>
 aws eks update-kubeconfig --name <cluster-name> --region <region> --alias mydemo
+aws eks update-kubeconfig --name Demo-dev-app-eks --region us-east-1 --alias mydemo
 kubectl get nodes
 kubectl get pod -A
+
+
+
+Karpenter Deployment:
+----------------------
+cd karpenter
+terraform init
+terraform output -state=../terraform.tfstate
+terraform refresh
+terraform plan
+terraform apply
+
+kubectl get pod -A
+kubectl get configmap aws-auth -n kube-system -oyaml
+
+kubectl get crds
+kubectl get crds | grep karpenter
+kubectl get crds | grep -E 'ec2nodeclass|nodepool'
+This should show CRDs like ec2nodeclasses.karpenter.k8s.aws and nodepools.karpenter.sh.
+
+
+kubectl get deploy -n karpenter
+kubectl describe deployment karpenter -n karpenter
+kubectl get pods -n karpenter
+kubectl describe pod <pod-name> -n karpenter
+kubectl logs <pod-name> -n karpenter
+kubectl logs -n karpenter -l app.kubernetes.io/name=karpenter
+kubectl get deployment -n karpenter karpenter -o jsonpath="{.spec.template.spec.containers[0].image}"
+kubectl get events -n karpenter
+kubectl get configmap -n karpenter
+kubectl describe configmap <CONFIGMAP_NAME> -n karpenter
+kubectl get secret -n karpenter
+kubectl describe secret <SECRET_NAME> -n karpenter
+kubectl get serviceaccount -n karpenter
+kubectl rollout restart deployment karpenter -n karpenter
+kubectl get all -n karpenter
+
+kubectl get nodepool 
+kubectl get nodepool  default -oyaml
+kubectl get EC2NodeClass 
+kubectl get EC2NodeClass  default -oyaml
 
 
 Check the AWS-Auth file:
@@ -64,41 +99,6 @@ Delete existing Auth file (Optional):
 kubectl delete configmap aws-auth -n kube-system
 
 
-
-Karpenter Deployment:
-----------------------
-cd karpenter
-terraform init
-terraform output -state=../terraform.tfstate
-terraform refresh
-terraform plan
-terraform apply
-
-kubectl get pod -A
-kubectl get configmap aws-auth -n kube-system -oyaml
-
-kubectl get deploy -n karpenter
-kubectl describe deployment karpenter -n karpenter
-kubectl get pods -n karpenter
-kubectl describe pod <pod-name> -n karpenter
-kubectl logs <pod-name> -n karpenter
-kubectl logs -n karpenter -l app.kubernetes.io/name=karpenter
-kubectl get deployment -n karpenter karpenter -o jsonpath="{.spec.template.spec.containers[0].image}"
-kubectl get events -n karpenter
-kubectl get configmap -n karpenter
-kubectl describe configmap <CONFIGMAP_NAME> -n karpenter
-kubectl get secret -n karpenter
-kubectl describe secret <SECRET_NAME> -n karpenter
-kubectl get serviceaccount -n karpenter
-kubectl rollout restart deployment karpenter -n karpenter
-kubectl get all -n karpenter
-
-kubectl get nodepool 
-kubectl get nodepool  default -oyaml
-kubectl get EC2NodeClass 
-kubectl get EC2NodeClass  default -oyaml
-
-
 Testing the Apps:
 -----------------
 cd ../manifest/
@@ -110,6 +110,7 @@ kubectl get node
 
 kubectl scale deployment -n workshop inflate --replicas 5
 kubectl scale deployment -n workshop inflate --replicas 0
+kubectl delete -f inflate.yaml
 
 kubectl -n karpenter logs -f -l app.kubernetes.io/name=karpenter
 kubectl get pod -n workshop
@@ -147,8 +148,6 @@ Notes:
 ------
 Immutable Field Error: The role field in spec for EC2NodeClass is immutable, meaning once it’s set, you cannot change it. If you need to change the role, you’ll have to delete and recreate the EC2NodeClass resource.
 kubectl delete ec2nodeclass default
-
-
 
 
 Tagging Subnets for Karpenter: Tagged the subnets with karpenter.sh/discovery, which Karpenter uses to identify the subnets. However, make sure both public and private subnets are tagged properly. 

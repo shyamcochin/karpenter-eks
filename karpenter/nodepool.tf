@@ -50,4 +50,5 @@ resource "kubernetes_manifest" "karpenter_nodepool" {
       }
     }
   }
+  # depends_on = [null_resource.wait_for_karpenter_crds_1, null_resource.wait_for_karpenter_crds_2] # Wait for Karpenter CRDs
 }
