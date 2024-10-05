@@ -72,8 +72,8 @@ terraform apply
 
 kubectl get nodepool 
 kubectl get nodepool  default -oyaml
-kubectl get EC2NodeClass 
-kubectl get EC2NodeClass  default -oyaml
+kubectl get ec2nodeclass 
+kubectl get ec2nodeclass  default -oyaml
 
 ## OR ##
 ---------
@@ -110,14 +110,14 @@ kubectl rollout restart deployment karpenter -n karpenter
 # Testing the Apps and Scale:
 -----------------------------
 cd ../manifest/
-kubectl create namespace workshop
 kubectl apply -f inflate.yaml
-kubectl get all -n workshop
-kubectl get deploy -n workshop
+kubectl get all
+kubectl get deploy
+kubectl get deploy inflate -oyaml
 kubectl get node
 
-kubectl scale deployment -n workshop inflate --replicas 5
-kubectl scale deployment -n workshop inflate --replicas 0
+kubectl scale deployment inflate --replicas 5
+kubectl scale deployment inflate --replicas 0
 kubectl delete -f inflate.yaml
 kubectl delete deployment karpenter -n karpenter
 kubectl delete pods -n karpenter --all
@@ -126,10 +126,11 @@ kubectl delete pods -n karpenter --all
 # Monitor the Karpenter Scale:
 ------------------------------
 kubectl -n karpenter logs -f -l app.kubernetes.io/name=karpenter
-kubectl get pod -n workshop -w
-kubectl get node
-kubectl get all -n workshop
-
+kubectl get pod -w
+kubectl get pod -o wide
+kubectl get node -w
+kubectl get all
+eks-node-viewer
 
 
 # Check the AWS-Auth file: (Optional)
